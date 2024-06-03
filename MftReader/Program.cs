@@ -4,30 +4,53 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.ComponentModel;
+using Microsoft.Extensions.Configuration;
 
 
 namespace MftReader
 {
+    public sealed class Settings
+    {
+        public static string search_volume { get; set; }
+        public static string report_folder { get; set; }
+        public static string search_extensions { get; set; }
+        public static bool calc_md5 { get; set; }
+    }
     class Program
     {
 
         public static List<String> nameLst = null;
         public static List<String> finalNameLst = null;
-  
+        private static Settings GetSettings()
+        {
+            IConfigurationRoot config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .AddEnvironmentVariables()
+                .Build();
+
+            return config.GetRequiredSection("Settings").Get<Settings>();
+        }
         static void Main(string[] args)
         {
             try
             {
+                IConfigurationRoot config = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json")
+                    .AddEnvironmentVariables()
+                    .Build();
+
+                Settings? settings = config.GetRequiredSection("Settings").Get<Settings>();
+
                 Console.WriteLine("### "+Constants.APP_SIGNATURE+" ###");
                 Console.WriteLine("### " + Constants.APP_URL + " ###\n");
                 Console.Write("Processing...\r");
 
                 Int32 unixTimestampInit = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
-                string driveLetter = Properties.Settings.Default.search_volume;
-                string fileNamePath = Properties.Settings.Default.report_folder;
-                string fileExtension = Properties.Settings.Default.search_extensions;
-                bool calcMd5 = Properties.Settings.Default.calc_md5;
+                string driveLetter = Settings.search_volume;
+                string fileNamePath = Settings.report_folder;
+                string fileExtension = Settings.search_extensions;
+                bool calcMd5 = Settings.calc_md5;
 
                 string fileNamePathRecommendation = "report_folder (" + fileNamePath + ") must be a valid folder, and the current user must have write access in it. The valid slash must be / and NOT \\.";
 
