@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34916.146
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MftReader", "MftReader\MftReader.csproj", "{2B839E43-B842-42D8-9307-2FB159563790}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MftReader", "src\MftReader\MftReader.csproj", "{6CE49D5E-D765-4F7F-AD05-DFA50C5F5BAE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,10 +10,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2B839E43-B842-42D8-9307-2FB159563790}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2B839E43-B842-42D8-9307-2FB159563790}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2B839E43-B842-42D8-9307-2FB159563790}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2B839E43-B842-42D8-9307-2FB159563790}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CE49D5E-D765-4F7F-AD05-DFA50C5F5BAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CE49D5E-D765-4F7F-AD05-DFA50C5F5BAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CE49D5E-D765-4F7F-AD05-DFA50C5F5BAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CE49D5E-D765-4F7F-AD05-DFA50C5F5BAE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
