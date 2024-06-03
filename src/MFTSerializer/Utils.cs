@@ -10,7 +10,7 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
 
-namespace MftReader
+namespace MFTSerializer
 {
     public class Utils
     {

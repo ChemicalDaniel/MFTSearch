@@ -1,30 +1,27 @@
-# MftReader
-MftReader is a Command-Line interface (CLI) program which reads the Master File Table (MFT) from NTFS volume.
+# MFTSearch
+MFTSearch is a Command-Line interface (CLI) program which reads the Master File Table (MFT) from NTFS volume.
 (C# Implementation with PInvoke)
 
 ## Downloads
 
-- https://github.com/Scicrop/MftReader/releases/latest
+- https://github.com/ChemicalDaniel/MFTSearch/releases/latest
 
 ## How to install
 
-- Open the directory where the file mftreader_setup.exe was downloaded and double-click it
+- Open the directory where the file MFTSearch_setup.exe was downloaded and double-click it
   - Windows 10: You may need permission to run unsigned executable files
     - If a dialog "Windows protected your PC" appears, you have to click on the "More info" link and "Run anyway" button
   - You may need to install .NET Framework 3.5
     - It will be installed automatically on Windows 10
 
 ## How to run
-
-![alt text](https://github.com/Scicrop/MftReader/blob/master/dist/mftreader-capture.png?raw=true "MftReader ScreenShot")
-
-- Open the directory where the MftReader was installed, example: `C:\Program Files (x86)\MftReader\`
+- Open the directory where the MFTSearch was installed, example: `C:\Program Files (x86)\MFTSearch\`
 - Fill the configuration file `appsettings.json` with the following parameters:
   1. search_volume: Example: `C`. Must be JUST a NTFS volume/drive letter WITHOUT ':', like C, D, F, G, etc. The current user must have administration rights over this volume.
   2. report_folder: Folder where the .json result will be stored, example `c:/windows/temp`. Must be a valid folder, and the current user must have write access in it. The valid slash must be / and NOT \\.
   3. search_extensions: File extensions to be scanned, example `.txt .pdf .doc`. Is the representation of a file extension, like .txt, .pdf, .doc, etc, WITH dot (.) WITHOUT asterisk (*).
   4. calc_md5: Boolean value to decide if the  sofware will make a MD5 hash of each file (True|False)
-- Open a Command Prompt as Administrator and type `MftReader.exe` then press `enter`
+- Open a Command Prompt as Administrator and type `MFTSearch.exe` then press `enter`
 
 ## Configuration file example
 

@@ -6,20 +6,16 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>scicrop-mftreader-icon.ico</ApplicationIcon>
-    <AssemblyTitle>MftReader</AssemblyTitle>
-    <Description>MftReader is a Command-Line interface %28CLI%29 program which reads the Master File Table %28MFT%29 from NTFS volume. %28C# Implementation with PInvoke%29</Description>
+    <ApplicationIcon>scicrop-MFTSerializer-icon.ico</ApplicationIcon>
+    <AssemblyTitle>MFTSerializer</AssemblyTitle>
+    <Description>MFTSerializer is a Command-Line interface %28CLI%29 program which reads the Master File Table %28MFT%29 from NTFS volume. %28C# Implementation with PInvoke%29</Description>
     <Company>SciCrop</Company>
-    <Product>MftReader</Product>
+    <Product>MFTSerializer</Product>
     <Copyright>Copyright ©  2018</Copyright>
     <AssemblyVersion>1.2.0.0</AssemblyVersion>
     <FileVersion>1.2.0.0</FileVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-  </ItemGroup>
     <ItemGroup>
 	    <Content Update="Properties\Settings.settings">
 		    <Generator>SettingsSingleFileGenerator</Generator>
@@ -27,7 +23,7 @@
 	    </Content>
     </ItemGroup>
   <ItemGroup>
-    <Content Include="scicrop-mftreader-icon.ico" />
+    <Content Include="scicrop-MFTSerializer-icon.ico" />
   </ItemGroup>
 	<ItemGroup>
 		<Content Include="appsettings.json">

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using System.Linq;
 
 
-namespace MftReader
+namespace MFTSerializer
 {
     public sealed class Settings
     {
