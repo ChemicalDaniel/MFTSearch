@@ -55,7 +55,7 @@ namespace MftReader
         {
             //string user = System.IO.File.GetAccessControl(path).GetOwner(typeof(System.Security.Principal.NTAccount)).ToString();
 
-            FileSecurity fileSecurity = File.GetAccessControl(path);
+            FileSecurity fileSecurity = new FileInfo(path).GetAccessControl();
             IdentityReference identityReference = fileSecurity.GetOwner(typeof(SecurityIdentifier));
             NTAccount ntAccount = identityReference.Translate(typeof(NTAccount)) as NTAccount;
             return ntAccount.Value;
