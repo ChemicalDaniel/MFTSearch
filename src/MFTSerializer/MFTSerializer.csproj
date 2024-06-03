@@ -6,7 +6,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>scicrop-MFTSerializer-icon.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\MFTSerializer.ico</ApplicationIcon>
     <AssemblyTitle>MFTSerializer</AssemblyTitle>
     <Description>MFTSerializer is a Command-Line interface %28CLI%29 program which reads the Master File Table %28MFT%29 from NTFS volume. %28C# Implementation with PInvoke%29</Description>
     <Company>SciCrop</Company>
@@ -22,9 +22,6 @@
 		    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
 	    </Content>
     </ItemGroup>
-  <ItemGroup>
-    <Content Include="scicrop-MFTSerializer-icon.ico" />
-  </ItemGroup>
 	<ItemGroup>
 		<Content Include="appsettings.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -35,6 +32,7 @@
     <PackageReference Include="MSTest.TestAdapter" Version="3.4.3" />
     <PackageReference Include="MSTest.TestFramework" Version="3.4.3" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
     <PackageReference Include="System.Diagnostics.EventLog" Version="8.0.0" />
 	<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
 	<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />

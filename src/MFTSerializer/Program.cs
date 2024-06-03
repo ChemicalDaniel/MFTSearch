@@ -6,6 +6,8 @@ using System.IO;
 using System.ComponentModel;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
+using System.Data.SQLite;
+using System.Text.RegularExpressions;
 
 
 namespace MFTSerializer
@@ -35,13 +37,11 @@ namespace MFTSerializer
         {
             try
             {
-                Settings? settings = GetSettings();
+                Settings settings = GetSettings();
 
-                Console.WriteLine("### "+Constants.APP_SIGNATURE+" ###");
-                Console.WriteLine("### " + Constants.APP_URL + " ###\n");
+                Console.WriteLine(Constants.APP_SIGNATURE);
+                Console.WriteLine(Constants.APP_URL);
                 Console.Write("Processing...\r");
-
-                Int32 unixTimestampInit = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
                 string driveLetter = Settings.search_volume;
                 string fileNamePath = Settings.report_folder;
@@ -53,180 +53,79 @@ namespace MFTSerializer
 
                 if (!Directory.Exists(fileNamePath))
                 {
-                    Utils.Instance.ThrowErr(fileNamePathRecommendation);
+                    MFTTools.Error(ErrorType.InvalidParameters, fileNamePathRecommendation);
                 }
                 else if (fileNamePath[fileNamePath.Length - 1] == '/') fileNamePath = fileNamePath.Substring(0, fileNamePath.Length - 1);
                 
 
                 if (driveLetter.Length > 1 || driveLetter.Contains(":") || fileNamePath.Contains("\\") || !fileExtensions.Any(extension => extension.Contains(".")) || fileExtensions.Any(extension => extension.Contains("*")))
                 {
-                    Utils.Instance.ThrowErr("\n\nCheck the config file:\n\n1. search_volume (" + driveLetter+") must be JUST a NTFS volume/drive letter WITHOUT ':', like C, D, F, G, etc. The current user must have administration rights over this volume.\n\n" +
+                    MFTTools.Error(ErrorType.InvalidParameters, "\n\nCheck the config file:\n\n1. search_volume (" + driveLetter+") must be JUST a NTFS volume/drive letter WITHOUT ':', like C, D, F, G, etc. The current user must have administration rights over this volume.\n\n" +
                         "2. "+fileNamePathRecommendation+"\n\n" +
                         "3. search_extensions (" + strFileExtensions+ ") is the representation of a file extension, like .txt, .pdf, .doc, etc, WITH dot (.) WITHOUT asterisk (*).");
                 }
 
-
-                nameLst = new List<string>();
-                Dictionary<ulong, FileNameAndParentFrn> mDict = new Dictionary<ulong, FileNameAndParentFrn>();
-
-                long totalBytes = 0l;
-                EnumerateVolume.PInvokeWin32 mft = new EnumerateVolume.PInvokeWin32();
-                mft.Drive = driveLetter;
-                mft.Drive = mft.Drive + ":";
-                mft.EnumerateVolume(out mDict);
-                StringBuilder sb = new StringBuilder();
-                StringBuilder pathSb = null;
-                String jsonFileNamePath = fileNamePath + "/" + driveLetter + "." + unixTimestampInit + ".json";
-
-                Console.Write("Volume: " + driveLetter+"\t\t\n");
-                Console.WriteLine("Report folder: " + fileNamePath);
-                Console.WriteLine("Extension(s): " + strFileExtensions);
-
-                long totalDriveSize = 0;
-
-                try
+                Console.Write("Search String> ");
+                string searchString = Console.ReadLine().Trim();
+                MFTTools mft = new MFTTools('C');
+                using (SQLiteConnection conn = mft.ToSQLiteConnection(searchString))
                 {
-                    totalDriveSize = Utils.Instance.GetDriveTotalSize(driveLetter);
-                }
-                catch(Exception e)
-                {
-                    Utils.Instance.LogException(e);
-                }
-
-                if (File.Exists(jsonFileNamePath))
-                {
-                    File.Delete(jsonFileNamePath);
-                    Console.WriteLine("Old file deleted: " + jsonFileNamePath);
-                }
-
-                finalNameLst = new List<string>();
-                Console.WriteLine("MFT items: " + mDict.Count);
-                foreach (KeyValuePair<UInt64, FileNameAndParentFrn> entry in mDict)
-                {
-                    FileNameAndParentFrn file = (FileNameAndParentFrn)entry.Value;
-                    pathSb = new StringBuilder();
-
-                    string extractedExtension = Utils.Instance.ExtractExtension(file.Name);
-
-                    if (extractedExtension != null && fileExtensions.Any(extension => extension.ToLower().Contains(extractedExtension.ToLower())))
+                    while (true)
                     {
-                        pathSb.Append(driveLetter + ":\\");
-                        Utils.Instance.SearchId(file.ParentFrn, mDict);
-
-                        nameLst.Reverse();
-
-                        foreach (var item in nameLst)
+                        Console.Write("Input a SQL String> ");
+                        string input = Console.ReadLine().Trim();
+                        if (input.ToLower() == "exit") break;
+                        try
                         {
-                            pathSb.Append(item + "\\");
+                            if (input.StartsWith("executeScalar"))
+                            {
+                                string pattern = @"executeScalar\(([^)]+)\)";
+                                Match match = Regex.Match(input, pattern);
+                                if (match.Success)
+                                {
+                                    input = match.Groups[1].Value;
+                                    using (var command = new SQLiteCommand(input, conn))
+                                    {
+                                        string output = command.ExecuteScalar().ToString();
+                                        Console.WriteLine(output);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                using (var command = new SQLiteCommand(input, conn))
+                                {
+                                    {
+                                        using (var reader = command.ExecuteReader())
+                                        {
+                                            while (reader.Read())
+                                            {
+                                                for (int i = 0; i < reader.FieldCount; i++)
+                                                {
+                                                    Console.Write($"{reader.GetName(i)}: {reader[i]}  ");
+                                                }
+                                                Console.WriteLine();
+                                            }
+
+                                            Console.WriteLine();
+                                        }
+                                    }
+                                } 
+                            }
                         }
-
-                        pathSb.Append(file.Name);
-
-                        finalNameLst.Add(pathSb.ToString());
-
+                        catch (Exception exception)
+                        {
+                            Console.WriteLine(exception);
+                        }
                         
-
-                        Console.Write("File references found: " + finalNameLst.Count + "\r");
-
-                        nameLst.Clear();
                     }
                 }
-
-                Console.WriteLine();
-                sb.AppendLine("{\"initTime\": "+ unixTimestampInit + ", \"search_volume\": \""+driveLetter+"\", \"report_folder\": \""+fileNamePath+"\", \"search_extensions\": \""+strFileExtensions+ "\", \"totalDriveSize\": "+ totalDriveSize + ", \"objectLst\": [");
-                String comma = ", ";
-                int notFoundCount = 0;
-                int ownerExceptionCount = 0;
-                int machineNameExceptionCount = 0;
-                int fqdnExceptionCount = 0;
-                int md5ExceptionCount = 0;
-                for (int i = 0; i < finalNameLst.Count; i++)
-                {
-
-                    String item = finalNameLst[i];
-
-                    if (File.Exists(item))
-                    {
-                        if (i + 1 == finalNameLst.Count) comma = "";
-                        long fileSize = new FileInfo(item).Length;
-                        DateTime fileCreationDate = File.GetCreationTime(item);
-                        DateTime fileUpdateDate = File.GetLastWriteTime(item);
-                        string owner = "n/a";
-                        string machineName = "n/a";
-                        string fqdn = "n/a";
-                        string md5Hash = "";
-
-
-                        if (calcMd5)
-                        {
-                            try
-                            {
-                                byte[] byteArray = File.ReadAllBytes(item);
-                                string strMd5 = Utils.Instance.ByteArrayToMd5HashString(byteArray);
-                                md5Hash = ", \"md5\": \""+ strMd5 + "\"";
-                            }
-                            catch(Exception e)
-                            {
-                                md5ExceptionCount++;
-                                md5Hash = ", \"md5\": \"n/a\"";
-                                Utils.Instance.LogException(e);
-                            }
-                        }
-
-
-                        try { owner = Utils.Instance.GetOwnerName(item); }
-                        catch (Exception e) 
-                        {
-                            ownerExceptionCount++;
-                            Utils.Instance.LogException(e);
-                        } finally { owner = Uri.EscapeDataString(owner); }
-
-                        try { machineName = Environment.MachineName; }
-                        catch (Exception e)
-                        {
-                            machineNameExceptionCount++;
-                            Utils.Instance.LogException(e);
-                        }  finally { machineName = Uri.EscapeDataString(machineName); }
-
-                        try { fqdn = Utils.Instance.GetFQDN(); }
-                        catch (Exception e)
-                        {
-                            fqdnExceptionCount++;
-                            Utils.Instance.LogException(e);
-                        }
-                        finally { fqdn = Uri.EscapeDataString(fqdn); }
-
-                        sb.AppendLine("{ \"fileName\": \"" + Uri.EscapeDataString(item) + "\", \"fileSize\": " + fileSize + ", \"fileCreationDate\": \"" + fileCreationDate + "\", \"fileUpdateDate\": \"" + fileUpdateDate + "\", \"fileAuthor\": \"" + owner + "\", \"fqdn\": \""+ fqdn +"\" "+md5Hash+"}" + comma);
-                        totalBytes = fileSize + totalBytes;
-                    }
-                    else
-                    {
-                        notFoundCount++;
-                    }
-
-                    Console.Write("Inspecting file: " + (i + 1) + "/" + finalNameLst.Count + "\r");
-                }
-                Int32 unixTimestampEnd = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-                sb.AppendLine("], \"endTime\": "+unixTimestampEnd+" }");
-
-                Utils.Instance.WriteToFile(sb.ToString(), jsonFileNamePath);
-
-                Console.WriteLine("\nFile references not found: " + notFoundCount);
-                Console.WriteLine("FQDN resolution errors: " + fqdnExceptionCount);
-                Console.WriteLine("Machine Name resolution errors: " + machineNameExceptionCount);
-                Console.WriteLine("File ownership resolution errors: " + ownerExceptionCount);
-                Console.WriteLine("MD5 hash errors: " + md5ExceptionCount);
-                Console.WriteLine("\nTotal bytes: " + Utils.Instance.FormatBytesLength(totalBytes));
-                Console.WriteLine("Process ended. Check the results in: " + jsonFileNamePath);
-
-                Console.WriteLine("\n[PRESS ENTER]");
-                Console.ReadLine();
-
-        }
+                
+            }
             catch (Exception e)
             {
-                Utils.Instance.ThrowErr(e.Message);
-                Utils.Instance.LogException(e);
+                MFTTools.Error(ErrorType.UnknownException, e.Message);
+                MFTTools.LogException(e);
             }
 
 }
