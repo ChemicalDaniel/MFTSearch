@@ -19,7 +19,7 @@ MftReader is a Command-Line interface (CLI) program which reads the Master File 
 ![alt text](https://github.com/Scicrop/MftReader/blob/master/dist/mftreader-capture.png?raw=true "MftReader ScreenShot")
 
 - Open the directory where the MftReader was installed, example: `C:\Program Files (x86)\MftReader\`
-- Fill the configuration file `MftReader.exe.config` with the following parameters:
+- Fill the configuration file `appsettings.json` with the following parameters:
   1. search_volume: Example: `C`. Must be JUST a NTFS volume/drive letter WITHOUT ':', like C, D, F, G, etc. The current user must have administration rights over this volume.
   2. report_folder: Folder where the .json result will be stored, example `c:/windows/temp`. Must be a valid folder, and the current user must have write access in it. The valid slash must be / and NOT \\.
   3. search_extensions: File extensions to be scanned, example `.txt .pdf .doc`. Is the representation of a file extension, like .txt, .pdf, .doc, etc, WITH dot (.) WITHOUT asterisk (*).
@@ -28,21 +28,17 @@ MftReader is a Command-Line interface (CLI) program which reads the Master File 
 
 ## Configuration file example
 
-```xml
-        <MftReader.Properties.Settings>
-            <setting name="search_volume" serializeAs="String">
-                <value>C</value>
-            </setting>
-            <setting name="report_folder" serializeAs="String">
-                <value>c:/windows/temp</value>
-            </setting>
-            <setting name="search_extensions" serializeAs="String">
-                <value>.txt .pdf .doc</value>
-            </setting>
-	    <setting name="calc_md5" serializeAs="String">
-                <value>True</value>
-            </setting>
-        </MftReader.Properties.Settings>
+```json
+{
+  "Settings": {
+    "search_volume": "C",
+    "report_folder": "c:/windows/temp",
+    "search_extensions": [
+      ".rtf",
+    ],
+    "calc_md5":  true
+  }
+}
 ```
 
 ## Result example
