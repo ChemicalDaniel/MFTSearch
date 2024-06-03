@@ -6,6 +6,7 @@ using System.IO;
 using System.ComponentModel;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
+using System.Data.SQLite;
 
 
 namespace MFTSerializer
@@ -35,7 +36,7 @@ namespace MFTSerializer
         {
             try
             {
-                Settings? settings = GetSettings();
+                Settings settings = GetSettings();
 
                 Console.WriteLine(Constants.APP_SIGNATURE);
                 Console.WriteLine(Constants.APP_URL);
@@ -66,6 +67,8 @@ namespace MFTSerializer
 
                 MFTTools mft = new MFTTools('C');
                 Console.WriteLine(mft.FindMatches("winver"));
+                SQLiteConnection conn = mft.ToSqliteConnection("winver");
+                Console.ReadLine();
             }
             catch (Exception e)
             {

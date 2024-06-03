@@ -16,6 +16,11 @@ public class FileDetails(string fullPath) : IComparable<FileDetails>
         return JsonSerializer.Serialize(this);
     }
 
+    public string ToSQLString()
+    {
+        return @$"('{FileName}', '{FullPath.Replace("\\", "\\\\")}', '{LastModified.ToString()}', '{DateCreated.ToString()}')";
+    }
+
     public int CompareTo(FileDetails other)
     {
         if (ReferenceEquals(this, other)) return 0;

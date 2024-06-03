@@ -10,6 +10,7 @@ using System.Security.AccessControl;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
+using System.Data.SQLite;
 using EnumerateVolume;
 
 namespace MFTSerializer
@@ -49,6 +50,57 @@ namespace MFTSerializer
             return MFTTools.ConvertFileNameAndParentFrnDictionaryToJson(_mDict, find);
         }
 
+        public SQLiteConnection ToSqliteConnection(string searchString, Boolean precise = false)
+        {
+            var connection = new SQLiteConnection("Data Source=:memory:;Version=3;New=True;");
+            connection.Open();
+
+            using (var command = new SQLiteCommand())
+            {
+                command.Connection = connection;
+                command.CommandText = @"
+                CREATE TABLE Files (
+                    Id INTEGER PRIMARY KEY,
+                    Name TEXT,
+                    FullPath TEXT UNIQUE,
+                    DateModified TEXT,
+                    DateCreated TEXT
+                );
+            ";
+                command.ExecuteNonQuery();
+                StringBuilder sb = new StringBuilder("\n");
+                List<FileNameAndParentFrn>
+                    find;
+                if (precise)
+                {
+                    find = _mDict.Values.ToList().FindAll(x => x.Name.Contains(searchString));
+                }
+                else
+                {
+                    find = _mDict.Values.ToList().FindAll(x => x.Name.Contains(searchString, StringComparison.CurrentCultureIgnoreCase));
+                }
+                foreach (FileNameAndParentFrn file in find)
+                {
+                    try
+                    {
+                        string path = GetPath(file.ParentFrn, _mDict) + @$"\{file.Name}";
+                        sb.Append("\t" + new FileDetails(path).ToSQLString() + ",\n");
+                    }
+                    catch (Exception exception)
+                    {
+                        Console.WriteLine(exception);
+                    }
+
+                }
+
+                sb.Remove(sb.Length - 2, 1);
+                sb.Append(";");
+                command.CommandText = @"INSERT INTO Files (Name, FullPath, DateModified, DateCreated) VALUES" + sb.ToString();
+                command.ExecuteNonQuery();
+            }
+            return connection;
+        }
+
         public void Delete()
         {
             _mft = null;
@@ -68,6 +120,8 @@ namespace MFTSerializer
             if (index == -1) return null; 
             return fileName.Substring(index, fileName.Length - index);
         }
+        
+        
 
         public static string GetOwnerName(string path)
         {
