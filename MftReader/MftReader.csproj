@@ -16,10 +16,6 @@
     <FileVersion>1.2.0.0</FileVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-  </ItemGroup>
     <ItemGroup>
 	    <Content Update="Properties\Settings.settings">
 		    <Generator>SettingsSingleFileGenerator</Generator>
