@@ -22,11 +22,13 @@ namespace MFTSerializer
     // ReSharper disable once InconsistentNaming
     public class MFTTools
     {
-        private readonly EnumerateVolume.PInvokeWin32 _mft = new PInvokeWin32();
+        private readonly char _driveLetter;
+        private EnumerateVolume.PInvokeWin32 _mft = new PInvokeWin32();
         private Dictionary<ulong, FileNameAndParentFrn> _mDict;
 
         public MFTTools(char driveLetter)
         {
+            _driveLetter = driveLetter;
             _mft.Drive = driveLetter.ToString() + ":";
             _mft.EnumerateVolume(out _mDict);
         }
@@ -45,6 +47,20 @@ namespace MFTSerializer
             }
             
             return MFTTools.ConvertFileNameAndParentFrnDictionaryToJson(_mDict, find);
+        }
+
+        public void Delete()
+        {
+            _mft = null;
+            _mDict = null;
+            GC.Collect();
+        }
+        public void Refresh()
+        {
+            Delete();
+            _mft = new PInvokeWin32();
+            _mft.Drive = _driveLetter.ToString() + ":";
+            _mft.EnumerateVolume(out _mDict);
         }
         public static String ExtractExtension(String fileName)
         {

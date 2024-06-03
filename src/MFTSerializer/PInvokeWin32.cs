@@ -191,6 +191,7 @@ namespace EnumerateVolume
                 {
                     Marshal.FreeHGlobal(medBuffer);
                 }
+                GC.Collect();
             }
         }
 
@@ -304,6 +305,7 @@ namespace EnumerateVolume
             finally
             {
                 Marshal.FreeHGlobal(pData);
+                GC.Collect();
             }
         }
 

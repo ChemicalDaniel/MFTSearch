@@ -66,7 +66,6 @@ namespace MFTSerializer
 
                 MFTTools mft = new MFTTools('C');
                 Console.WriteLine(mft.FindMatches("winver"));
-
             }
             catch (Exception e)
             {
