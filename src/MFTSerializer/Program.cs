@@ -65,9 +65,10 @@ namespace MFTSerializer
                         "3. search_extensions (" + strFileExtensions+ ") is the representation of a file extension, like .txt, .pdf, .doc, etc, WITH dot (.) WITHOUT asterisk (*).");
                 }
 
-
+                Console.Write("Search String> ");
+                string searchString = Console.ReadLine().Trim();
                 MFTTools mft = new MFTTools('C');
-                using (SQLiteConnection conn = mft.ToSQLiteConnection("Users"))
+                using (SQLiteConnection conn = mft.ToSQLiteConnection(searchString))
                 {
                     while (true)
                     {

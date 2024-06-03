@@ -42,12 +42,12 @@ public class FileDetails(string fullPath) : IComparable<FileDetails>
         if (this.DetailsType == FileDetailsType.APPLICATION)
         {
             FileVersionInfo info = System.Diagnostics.FileVersionInfo.GetVersionInfo(FullPath);
-            string name = String.IsNullOrWhiteSpace(info.FileName)
+            string name = String.IsNullOrWhiteSpace(info.ProductName)
                 ? Path.GetFileNameWithoutExtension(FileName)
-                : info.FileName;
+                : info.ProductName;
             string desc = String.IsNullOrWhiteSpace(info.FileDescription)
                 ? Path.GetFileNameWithoutExtension(FileName)
-                : info.FileName;
+                : info.FileDescription;
             return $@"('{name}', '{desc}', '{FullPath.Replace("\\", "\\\\")}')";
         }
         return @$"('{FileName}', '{FullPath.Replace("\\", "\\\\")}', '{LastModified.ToString()}', '{DateCreated.ToString()}')";
