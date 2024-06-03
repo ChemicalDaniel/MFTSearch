@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.ComponentModel;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
 
 
 namespace MftReader
@@ -13,7 +14,7 @@ namespace MftReader
     {
         public static string search_volume { get; set; }
         public static string report_folder { get; set; }
-        public static string search_extensions { get; set; }
+        public static string[] search_extensions { get; set; }
         public static bool calc_md5 { get; set; }
     }
     class Program
@@ -34,12 +35,7 @@ namespace MftReader
         {
             try
             {
-                IConfigurationRoot config = new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json")
-                    .AddEnvironmentVariables()
-                    .Build();
-
-                Settings? settings = config.GetRequiredSection("Settings").Get<Settings>();
+                Settings? settings = GetSettings();
 
                 Console.WriteLine("### "+Constants.APP_SIGNATURE+" ###");
                 Console.WriteLine("### " + Constants.APP_URL + " ###\n");
@@ -49,7 +45,8 @@ namespace MftReader
 
                 string driveLetter = Settings.search_volume;
                 string fileNamePath = Settings.report_folder;
-                string fileExtension = Settings.search_extensions;
+                List<String> fileExtensions = Settings.search_extensions.ToList();
+                string strFileExtensions = String.Join(" ", fileExtensions);
                 bool calcMd5 = Settings.calc_md5;
 
                 string fileNamePathRecommendation = "report_folder (" + fileNamePath + ") must be a valid folder, and the current user must have write access in it. The valid slash must be / and NOT \\.";
@@ -61,11 +58,11 @@ namespace MftReader
                 else if (fileNamePath[fileNamePath.Length - 1] == '/') fileNamePath = fileNamePath.Substring(0, fileNamePath.Length - 1);
                 
 
-                if (driveLetter.Length > 1 || driveLetter.Contains(":") || fileNamePath.Contains("\\") || !fileExtension.Contains(".") || fileExtension.Contains("*"))
+                if (driveLetter.Length > 1 || driveLetter.Contains(":") || fileNamePath.Contains("\\") || !fileExtensions.Any(extension => extension.Contains(".")) || fileExtensions.Any(extension => extension.Contains("*")))
                 {
                     Utils.Instance.ThrowErr("\n\nCheck the config file:\n\n1. search_volume (" + driveLetter+") must be JUST a NTFS volume/drive letter WITHOUT ':', like C, D, F, G, etc. The current user must have administration rights over this volume.\n\n" +
                         "2. "+fileNamePathRecommendation+"\n\n" +
-                        "3. search_extensions (" + fileExtension+ ") is the representation of a file extension, like .txt, .pdf, .doc, etc, WITH dot (.) WITHOUT asterisk (*).");
+                        "3. search_extensions (" + strFileExtensions+ ") is the representation of a file extension, like .txt, .pdf, .doc, etc, WITH dot (.) WITHOUT asterisk (*).");
                 }
 
 
@@ -83,7 +80,7 @@ namespace MftReader
 
                 Console.Write("Volume: " + driveLetter+"\t\t\n");
                 Console.WriteLine("Report folder: " + fileNamePath);
-                Console.WriteLine("Extension: " + fileExtension);
+                Console.WriteLine("Extension(s): " + strFileExtensions);
 
                 long totalDriveSize = 0;
 
@@ -111,7 +108,7 @@ namespace MftReader
 
                     string extractedExtension = Utils.Instance.ExtractExtension(file.Name);
 
-                    if (extractedExtension != null && fileExtension.ToLower().Contains(extractedExtension.ToLower()))
+                    if (extractedExtension != null && fileExtensions.Any(extension => extension.ToLower().Contains(extractedExtension.ToLower())))
                     {
                         pathSb.Append(driveLetter + ":\\");
                         Utils.Instance.SearchId(file.ParentFrn, mDict);
@@ -136,7 +133,7 @@ namespace MftReader
                 }
 
                 Console.WriteLine();
-                sb.AppendLine("{\"initTime\": "+ unixTimestampInit + ", \"search_volume\": \""+driveLetter+"\", \"report_folder\": \""+fileNamePath+"\", \"search_extensions\": \""+fileExtension+ "\", \"totalDriveSize\": "+ totalDriveSize + ", \"objectLst\": [");
+                sb.AppendLine("{\"initTime\": "+ unixTimestampInit + ", \"search_volume\": \""+driveLetter+"\", \"report_folder\": \""+fileNamePath+"\", \"search_extensions\": \""+strFileExtensions+ "\", \"totalDriveSize\": "+ totalDriveSize + ", \"objectLst\": [");
                 String comma = ", ";
                 int notFoundCount = 0;
                 int ownerExceptionCount = 0;
