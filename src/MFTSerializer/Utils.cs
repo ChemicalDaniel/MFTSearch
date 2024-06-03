@@ -13,46 +13,22 @@ using System.Text;
 
 namespace MFTSerializer
 {
-    public class Utils
+    public static class ErrorType
+    {
+        public const string InvalidParameters = "Invalid parameters. Usage example: MftReader.exe C C:/temp/ .txt";
+        public const string UnknownException = "An unknown exception occurred. Please try again later.";
+    }
+    public static class Utils
     {
 
-        private static readonly Utils instance = new Utils();
-
-
-        static Utils()
+        public static String ExtractExtension(String fileName)
         {
+            int index = fileName.LastIndexOf(".", StringComparison.Ordinal);
+            if (index == -1) return null; 
+            return fileName.Substring(index, fileName.Length - index);
         }
 
-        private Utils()
-        {
-        }
-
-        public static Utils Instance
-        {
-            get
-            {
-                return instance;
-            }
-        }
-
-        public String ExtractExtension(String fileName)
-        {
-            String extension = null;
-            if (fileName.Contains("."))
-            {
-                for (int i = fileName.Length - 1; i >= 0; i--)
-                {
-                    if (fileName[i] == '.')
-                    {
-                        extension = fileName.Substring(i, fileName.Length - (i));
-                        break;
-                    }
-                }
-            }
-            return extension;
-        }
-
-        public string GetOwnerName(string path)
+        public static string GetOwnerName(string path)
         {
             //string user = System.IO.File.GetAccessControl(path).GetOwner(typeof(System.Security.Principal.NTAccount)).ToString();
 
@@ -64,21 +40,18 @@ namespace MFTSerializer
 
 
 
-        public void ThrowErr(string extraMessage)
+        public static void Error(string errorType, string message)
         {
-            String message = "Invalid parameters. Usage example: MftReader.exe C C:/temp/ .txt";
-            Console.WriteLine(message);
-            if (extraMessage != null)
-            {
-                Console.WriteLine(extraMessage);
-            }
-            Console.WriteLine("\n[PRESS ENTER]");
+            Console.WriteLine(errorType);
+            if (message != null) Console.WriteLine(message);
+
+            Console.WriteLine("\nPress enter to continue...");
             Console.ReadLine();
 
             System.Environment.Exit(0);
         }
 
-        public FileNameAndParentFrn SearchId(ulong key, Dictionary<ulong, FileNameAndParentFrn> mDict)
+        public static FileNameAndParentFrn SearchId(ulong key, Dictionary<ulong, FileNameAndParentFrn> mDict)
         {
 
             FileNameAndParentFrn file = null;
@@ -98,7 +71,7 @@ namespace MFTSerializer
             return file;
         }
         
-        public string GetPath(ulong key, Dictionary<ulong, FileNameAndParentFrn> mDict)
+        public static string GetPath(ulong key, Dictionary<ulong, FileNameAndParentFrn> mDict)
         {
             if (!mDict.ContainsKey(key))
             {
@@ -120,7 +93,7 @@ namespace MFTSerializer
             
             return @"C:\" + string.Join(@"\", pathStack);
         }
-        public Dictionary<String, FileDetails> ConvertFileNameAndParentFrnDictionaryToPathAndDetailsDictionary(Dictionary<ulong, FileNameAndParentFrn> mDict, List<FileNameAndParentFrn> fileNameAndParentFrns = null)
+        public static Dictionary<String, FileDetails> ConvertFileNameAndParentFrnDictionaryToPathAndDetailsDictionary(Dictionary<ulong, FileNameAndParentFrn> mDict, List<FileNameAndParentFrn> fileNameAndParentFrns = null)
         {
             Dictionary<String, FileDetails> files = new Dictionary<string, FileDetails>();
             if (fileNameAndParentFrns == null)
@@ -143,7 +116,7 @@ namespace MFTSerializer
 
             return files;
         }
-        public string ConvertFileNameAndParentFrnDictionaryToJSON(Dictionary<ulong, FileNameAndParentFrn> mDict, List<FileNameAndParentFrn> fileNameAndParentFrns = null)
+        public static string ConvertFileNameAndParentFrnDictionaryToJSON(Dictionary<ulong, FileNameAndParentFrn> mDict, List<FileNameAndParentFrn> fileNameAndParentFrns = null)
         {
             Dictionary<String, FileDetails> files = new Dictionary<string, FileDetails>();
             if (fileNameAndParentFrns == null)
@@ -171,7 +144,7 @@ namespace MFTSerializer
             return sb.ToString();
         }
 
-        public void WriteToFile(String line, String fileNamePath)
+        public static void WriteToFile(String line, String fileNamePath)
         {
             try
             {
@@ -190,7 +163,7 @@ namespace MFTSerializer
             }
         }
 
-        public string GetFQDN()
+        public static string GetFQDN()
         {
             string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             string hostName = Dns.GetHostName();
@@ -205,7 +178,7 @@ namespace MFTSerializer
         }
 
 
-        public string FormatBytesLength(long length)
+        public static string FormatBytesLength(long length)
         {
             int chunk = 1024;
             string[] sizes = { "B", "KB", "MB", "GB", "TB" };
@@ -221,7 +194,7 @@ namespace MFTSerializer
             return result;
         }
 
-        private void WriteEventLog(string message)
+        private static void WriteEventLog(string message)
         {
             try
             {
@@ -239,12 +212,12 @@ namespace MFTSerializer
             }
         }
 
-        public void LogException(Exception e)
+        public static void LogException(Exception e)
         {
             WriteEventLog("Exception: " + e.Message + " [" + e.StackTrace + "]");
         }
 
-        public string ByteArrayToMd5HashString(byte[] input)
+        public static string ByteArrayToMd5HashString(byte[] input)
         {
             StringBuilder hash = new StringBuilder();
             MD5CryptoServiceProvider md5provider = new MD5CryptoServiceProvider();
@@ -257,7 +230,7 @@ namespace MFTSerializer
             return hash.ToString();
         }
 
-        public long GetDriveTotalSize(string driveLetter)
+        public static long GetDriveTotalSize(string driveLetter)
         {
             long totalSize = 0;
             DriveInfo[] allDrives = DriveInfo.GetDrives();
