@@ -117,9 +117,7 @@ namespace MFTSerializer
                     {
                         Console.WriteLine(exception);
                     }
-
                 }
-
                 if (filesBuilder.Length > 1)
                 {
                     filesBuilder.Remove(filesBuilder.Length - 2, 1);
@@ -143,8 +141,6 @@ namespace MFTSerializer
                     command.CommandText = @"INSERT INTO Applications (ProductName, Description, FullPath) VALUES" + applicationsBuilder.ToString();
                     command.ExecuteNonQuery();
                 }
-                
-                
             }
             return connection;
         }

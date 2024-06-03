@@ -35,8 +35,8 @@ namespace MFTSerializer
         }
         static void Main(string[] args)
         {
-            /*try
-            {*/
+            try
+            {
                 Settings settings = GetSettings();
 
                 Console.WriteLine(Constants.APP_SIGNATURE);
@@ -120,12 +120,12 @@ namespace MFTSerializer
                     }
                 }
                 
-            /*}
+            }
             catch (Exception e)
             {
                 MFTTools.Error(ErrorType.UnknownException, e.Message);
                 MFTTools.LogException(e);
-            }*/
+            }
 
 }
     }
