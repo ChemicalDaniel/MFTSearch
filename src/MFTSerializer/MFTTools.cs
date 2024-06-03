@@ -10,17 +10,42 @@ using System.Security.AccessControl;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
+using EnumerateVolume;
 
 namespace MFTSerializer
 {
-    public static class ErrorType
+    internal static class ErrorType
     {
         public const string InvalidParameters = "Invalid parameters. Usage example: MftReader.exe C C:/temp/ .txt";
         public const string UnknownException = "An unknown exception occurred. Please try again later.";
     }
-    public static class Utils
+    // ReSharper disable once InconsistentNaming
+    public class MFTTools
     {
+        private readonly EnumerateVolume.PInvokeWin32 _mft = new PInvokeWin32();
+        private Dictionary<ulong, FileNameAndParentFrn> _mDict;
 
+        public MFTTools(char driveLetter)
+        {
+            _mft.Drive = driveLetter.ToString() + ":";
+            _mft.EnumerateVolume(out _mDict);
+        }
+
+        public String FindMatches(string searchString, Boolean precise = false)
+        {
+            List<FileNameAndParentFrn>
+                find;
+            if (precise)
+            {
+                    find = _mDict.Values.ToList().FindAll(x => x.Name.Contains(searchString));
+            }
+            else
+            {
+                    find = _mDict.Values.ToList().FindAll(x => x.Name.Contains(searchString, StringComparison.CurrentCultureIgnoreCase));
+            }
+            
+            return MFTTools.ConvertFileNameAndParentFrnDictionaryToJson(_mDict, find);
+        }
         public static String ExtractExtension(String fileName)
         {
             int index = fileName.LastIndexOf(".", StringComparison.Ordinal);
@@ -116,7 +141,7 @@ namespace MFTSerializer
 
             return files;
         }
-        public static string ConvertFileNameAndParentFrnDictionaryToJSON(Dictionary<ulong, FileNameAndParentFrn> mDict, List<FileNameAndParentFrn> fileNameAndParentFrns = null)
+        public static string ConvertFileNameAndParentFrnDictionaryToJson(Dictionary<ulong, FileNameAndParentFrn> mDict, List<FileNameAndParentFrn> fileNameAndParentFrns = null)
         {
             Dictionary<String, FileDetails> files = new Dictionary<string, FileDetails>();
             if (fileNameAndParentFrns == null)
@@ -163,7 +188,7 @@ namespace MFTSerializer
             }
         }
 
-        public static string GetFQDN()
+        public static string GetFqdn()
         {
             string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             string hostName = Dns.GetHostName();
@@ -220,8 +245,8 @@ namespace MFTSerializer
         public static string ByteArrayToMd5HashString(byte[] input)
         {
             StringBuilder hash = new StringBuilder();
-            MD5CryptoServiceProvider md5provider = new MD5CryptoServiceProvider();
-            byte[] bytes = md5provider.ComputeHash(input);
+            MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider();
+            byte[] bytes = md5Provider.ComputeHash(input);
 
             for (int i = 0; i < bytes.Length; i++)
             {

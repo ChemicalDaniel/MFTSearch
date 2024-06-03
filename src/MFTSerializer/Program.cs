@@ -37,11 +37,9 @@ namespace MFTSerializer
             {
                 Settings? settings = GetSettings();
 
-                Console.WriteLine("### "+Constants.APP_SIGNATURE+" ###");
-                Console.WriteLine("### " + Constants.APP_URL + " ###\n");
+                Console.WriteLine(Constants.APP_SIGNATURE);
+                Console.WriteLine(Constants.APP_URL);
                 Console.Write("Processing...\r");
-
-                Int32 unixTimestampInit = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
                 string driveLetter = Settings.search_volume;
                 string fileNamePath = Settings.report_folder;
@@ -53,45 +51,27 @@ namespace MFTSerializer
 
                 if (!Directory.Exists(fileNamePath))
                 {
-                    Utils.Error(ErrorType.InvalidParameters, fileNamePathRecommendation);
+                    MFTTools.Error(ErrorType.InvalidParameters, fileNamePathRecommendation);
                 }
                 else if (fileNamePath[fileNamePath.Length - 1] == '/') fileNamePath = fileNamePath.Substring(0, fileNamePath.Length - 1);
                 
 
                 if (driveLetter.Length > 1 || driveLetter.Contains(":") || fileNamePath.Contains("\\") || !fileExtensions.Any(extension => extension.Contains(".")) || fileExtensions.Any(extension => extension.Contains("*")))
                 {
-                    Utils.Error(ErrorType.InvalidParameters, "\n\nCheck the config file:\n\n1. search_volume (" + driveLetter+") must be JUST a NTFS volume/drive letter WITHOUT ':', like C, D, F, G, etc. The current user must have administration rights over this volume.\n\n" +
+                    MFTTools.Error(ErrorType.InvalidParameters, "\n\nCheck the config file:\n\n1. search_volume (" + driveLetter+") must be JUST a NTFS volume/drive letter WITHOUT ':', like C, D, F, G, etc. The current user must have administration rights over this volume.\n\n" +
                         "2. "+fileNamePathRecommendation+"\n\n" +
                         "3. search_extensions (" + strFileExtensions+ ") is the representation of a file extension, like .txt, .pdf, .doc, etc, WITH dot (.) WITHOUT asterisk (*).");
                 }
 
 
-                nameLst = new List<string>();
-                Dictionary<ulong, FileNameAndParentFrn> mDict = new Dictionary<ulong, FileNameAndParentFrn>();
-                
-                EnumerateVolume.PInvokeWin32 mft = new EnumerateVolume.PInvokeWin32();
-                mft.Drive = driveLetter;
-                mft.Drive = mft.Drive + ":";
-                mft.EnumerateVolume(out mDict);
-                String jsonFileNamePath = fileNamePath + "/" + driveLetter + "." + unixTimestampInit + ".json";
-
-                Console.Write("Volume: " + driveLetter+"\t\t\n");
-                Console.WriteLine("Report folder: " + fileNamePath);
-                Console.WriteLine("Extension(s): " + strFileExtensions);
-
-                finalNameLst = new List<string>();
-                Console.WriteLine("MFT items: " + mDict.Count);
-                List<FileNameAndParentFrn>
-                    find = mDict.Values.ToList().FindAll(x => x.Name.ToLower().Contains("Hello".ToLower()));
-                string dict = 
-                    Utils.ConvertFileNameAndParentFrnDictionaryToJSON(mDict, find);
-                Console.WriteLine(dict);
+                MFTTools mft = new MFTTools('C');
+                Console.WriteLine(mft.FindMatches("winver"));
 
             }
             catch (Exception e)
             {
-                Utils.Error(ErrorType.UnknownException, e.Message);
-                Utils.LogException(e);
+                MFTTools.Error(ErrorType.UnknownException, e.Message);
+                MFTTools.LogException(e);
             }
 
 }
