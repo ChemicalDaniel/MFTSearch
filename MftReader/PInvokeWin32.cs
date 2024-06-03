@@ -73,8 +73,8 @@ namespace EnumerateVolume
                                                       IntPtr lpOutBuffer, Int32 nOutBufferSize,
                                                       out uint lpBytesReturned, IntPtr lpOverlapped);
 
-        [DllImport("kernel32.dll")]
-        public static extern void ZeroMemory(IntPtr ptr, Int32 size);
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern void RtlZeroMemory(IntPtr ptr, int size);
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct BY_HANDLE_FILE_INFORMATION
@@ -251,7 +251,7 @@ namespace EnumerateVolume
         unsafe public void EnumerateFiles(IntPtr medBuffer, ref Dictionary<ulong, FileNameAndParentFrn> files)
         {
             IntPtr pData = Marshal.AllocHGlobal(sizeof(UInt64) + 0x10000);
-            PInvokeWin32.ZeroMemory(pData, sizeof(UInt64) + 0x10000);
+            PInvokeWin32.RtlZeroMemory(pData, sizeof(UInt64) + 0x10000);
             uint outBytesReturned = 0;
 
             while (false != PInvokeWin32.DeviceIoControl(_changeJournalRootHandle, PInvokeWin32.FSCTL_ENUM_USN_DATA, medBuffer,
@@ -326,7 +326,7 @@ namespace EnumerateVolume
 
             int sizeCujd = Marshal.SizeOf(cujd);
             IntPtr cujdBuffer = Marshal.AllocHGlobal(sizeCujd);
-            PInvokeWin32.ZeroMemory(cujdBuffer, sizeCujd);
+            PInvokeWin32.RtlZeroMemory(cujdBuffer, sizeCujd);
             Marshal.StructureToPtr(cujd, cujdBuffer, true);
 
             bool fOk = PInvokeWin32.DeviceIoControl(_changeJournalRootHandle, PInvokeWin32.FSCTL_CREATE_USN_JOURNAL,
@@ -358,7 +358,7 @@ namespace EnumerateVolume
                 med.HighUsn = ujd.NextUsn;
                 int sizeMftEnumData = Marshal.SizeOf(med);
                 medBuffer = Marshal.AllocHGlobal(sizeMftEnumData);
-                PInvokeWin32.ZeroMemory(medBuffer, sizeMftEnumData);
+                PInvokeWin32.RtlZeroMemory(medBuffer, sizeMftEnumData);
                 Marshal.StructureToPtr(med, medBuffer, true);
             }
             else
