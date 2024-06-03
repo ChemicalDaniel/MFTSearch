@@ -7,6 +7,7 @@ using System.ComponentModel;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Data.SQLite;
+using System.Text.RegularExpressions;
 
 
 namespace MFTSerializer
@@ -34,8 +35,8 @@ namespace MFTSerializer
         }
         static void Main(string[] args)
         {
-            try
-            {
+            /*try
+            {*/
                 Settings settings = GetSettings();
 
                 Console.WriteLine(Constants.APP_SIGNATURE);
@@ -66,15 +67,65 @@ namespace MFTSerializer
 
 
                 MFTTools mft = new MFTTools('C');
-                Console.WriteLine(mft.FindMatches("winver"));
-                SQLiteConnection conn = mft.ToSqliteConnection("winver");
-                Console.ReadLine();
-            }
+                using (SQLiteConnection conn = mft.ToSQLiteConnection("Users"))
+                {
+                    while (true)
+                    {
+                        Console.Write("Input a SQL String> ");
+                        string input = Console.ReadLine().Trim();
+                        if (input.ToLower() == "exit") break;
+                        try
+                        {
+                            if (input.StartsWith("executeScalar"))
+                            {
+                                string pattern = @"executeScalar\(([^)]+)\)";
+                                Match match = Regex.Match(input, pattern);
+                                if (match.Success)
+                                {
+                                    input = match.Groups[1].Value;
+                                    using (var command = new SQLiteCommand(input, conn))
+                                    {
+                                        string output = command.ExecuteScalar().ToString();
+                                        Console.WriteLine(output);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                using (var command = new SQLiteCommand(input, conn))
+                                {
+                                    {
+                                        using (var reader = command.ExecuteReader())
+                                        {
+                                            while (reader.Read())
+                                            {
+                                                for (int i = 0; i < reader.FieldCount; i++)
+                                                {
+                                                    Console.Write($"{reader.GetName(i)}: {reader[i]}  ");
+                                                }
+                                                Console.WriteLine();
+                                            }
+
+                                            Console.WriteLine();
+                                        }
+                                    }
+                                } 
+                            }
+                        }
+                        catch (Exception exception)
+                        {
+                            Console.WriteLine(exception);
+                        }
+                        
+                    }
+                }
+                
+            /*}
             catch (Exception e)
             {
                 MFTTools.Error(ErrorType.UnknownException, e.Message);
                 MFTTools.LogException(e);
-            }
+            }*/
 
 }
     }

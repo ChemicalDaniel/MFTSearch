@@ -50,7 +50,7 @@ namespace MFTSerializer
             return MFTTools.ConvertFileNameAndParentFrnDictionaryToJson(_mDict, find);
         }
 
-        public SQLiteConnection ToSqliteConnection(string searchString, Boolean precise = false)
+        public SQLiteConnection ToSQLiteConnection(string searchString, Boolean precise = false)
         {
             var connection = new SQLiteConnection("Data Source=:memory:;Version=3;New=True;");
             connection.Open();
@@ -66,9 +66,24 @@ namespace MFTSerializer
                     DateModified TEXT,
                     DateCreated TEXT
                 );
+                CREATE TABLE Folders (
+                    Id INTEGER PRIMARY KEY,
+                    Name TEXT,
+                    FullPath TEXT UNIQUE,
+                    DateModified TEXT,
+                    DateCreated TEXT
+                );
+                CREATE TABLE Applications (
+                    Id INTEGER PRIMARY KEY,
+                    ProductName TEXT,
+                    Description TEXT,
+                    FullPath TEXT UNIQUE
+                );
             ";
                 command.ExecuteNonQuery();
-                StringBuilder sb = new StringBuilder("\n");
+                StringBuilder filesBuilder = new StringBuilder("\n");
+                StringBuilder foldersBuilder = new StringBuilder("\n");
+                StringBuilder applicationsBuilder = new StringBuilder("\n");
                 List<FileNameAndParentFrn>
                     find;
                 if (precise)
@@ -84,7 +99,19 @@ namespace MFTSerializer
                     try
                     {
                         string path = GetPath(file.ParentFrn, _mDict) + @$"\{file.Name}";
-                        sb.Append("\t" + new FileDetails(path).ToSQLString() + ",\n");
+                        FileDetails fd = new FileDetails(path);
+                        if (fd.DetailsType == FileDetails.FileDetailsType.FILE)
+                        {
+                            filesBuilder.Append("\t" + fd.ToSQLString() + ",\n");
+                        } else if (fd.DetailsType == FileDetails.FileDetailsType.FOLDER)
+                        {
+                            foldersBuilder.Append("\t" + fd.ToSQLString() + ",\n");
+                        }
+                        else
+                        {
+                            applicationsBuilder.Append("\t" + fd.ToSQLString() + ",\n");
+                        }
+                        
                     }
                     catch (Exception exception)
                     {
@@ -93,10 +120,31 @@ namespace MFTSerializer
 
                 }
 
-                sb.Remove(sb.Length - 2, 1);
-                sb.Append(";");
-                command.CommandText = @"INSERT INTO Files (Name, FullPath, DateModified, DateCreated) VALUES" + sb.ToString();
-                command.ExecuteNonQuery();
+                if (filesBuilder.Length > 1)
+                {
+                    filesBuilder.Remove(filesBuilder.Length - 2, 1);
+                    filesBuilder.Append(";");
+                    command.CommandText = @"INSERT INTO Files (Name, FullPath, DateModified, DateCreated) VALUES" + filesBuilder.ToString();
+                    command.ExecuteNonQuery();
+                }
+
+                if (foldersBuilder.Length > 1)
+                {
+                    foldersBuilder.Remove(foldersBuilder.Length - 2, 1);
+                    foldersBuilder.Append(";");
+                    command.CommandText = @"INSERT INTO Folders (Name, FullPath, DateModified, DateCreated) VALUES" + foldersBuilder.ToString();
+                    command.ExecuteNonQuery();
+                }
+
+                if (applicationsBuilder.Length > 1)
+                {
+                    applicationsBuilder.Remove(applicationsBuilder.Length - 2, 1);
+                    applicationsBuilder.Append(";");
+                    command.CommandText = @"INSERT INTO Applications (ProductName, Description, FullPath) VALUES" + applicationsBuilder.ToString();
+                    command.ExecuteNonQuery();
+                }
+                
+                
             }
             return connection;
         }
