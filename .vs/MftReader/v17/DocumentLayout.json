@@ -7,6 +7,10 @@
       "RelativeMoniker": "D:0:0:{2B839E43-B842-42D8-9307-2FB159563790}|MftReader\\MftReader.csproj|solutionrelative:mftreader\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{2B839E43-B842-42D8-9307-2FB159563790}|MftReader\\MftReader.csproj|c:\\users\\danie\\source\\repos\\chemicaldaniel\\mftsearch\\mftreader\\pinvokewin32.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2B839E43-B842-42D8-9307-2FB159563790}|MftReader\\MftReader.csproj|solutionrelative:mftreader\\pinvokewin32.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{2B839E43-B842-42D8-9307-2FB159563790}|MftReader\\MftReader.csproj|c:\\users\\danie\\source\\repos\\chemicaldaniel\\mftsearch\\mftreader\\app.manifest||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
       "RelativeMoniker": "D:0:0:{2B839E43-B842-42D8-9307-2FB159563790}|MftReader\\MftReader.csproj|solutionrelative:mftreader\\app.manifest||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     },
@@ -17,10 +21,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{2B839E43-B842-42D8-9307-2FB159563790}|MftReader\\MftReader.csproj|c:\\users\\danie\\source\\repos\\chemicaldaniel\\mftsearch\\mftreader\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{2B839E43-B842-42D8-9307-2FB159563790}|MftReader\\MftReader.csproj|solutionrelative:mftreader\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2B839E43-B842-42D8-9307-2FB159563790}|MftReader\\MftReader.csproj|c:\\users\\danie\\source\\repos\\chemicaldaniel\\mftsearch\\mftreader\\pinvokewin32.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2B839E43-B842-42D8-9307-2FB159563790}|MftReader\\MftReader.csproj|solutionrelative:mftreader\\pinvokewin32.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{2B839E43-B842-42D8-9307-2FB159563790}|MftReader\\MftReader.csproj|c:\\users\\danie\\source\\repos\\chemicaldaniel\\mftsearch\\mftreader\\utils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -72,7 +72,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "app.manifest",
               "DocumentMoniker": "C:\\Users\\Danie\\source\\repos\\ChemicalDaniel\\MFTSearch\\MftReader\\app.manifest",
               "RelativeDocumentMoniker": "MftReader\\app.manifest",
@@ -97,7 +97,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Danie\\source\\repos\\ChemicalDaniel\\MFTSearch\\MftReader\\appsettings.json",
               "RelativeDocumentMoniker": "MftReader\\appsettings.json",
@@ -109,7 +109,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "MftReader.csproj",
               "DocumentMoniker": "C:\\Users\\Danie\\source\\repos\\ChemicalDaniel\\MFTSearch\\MftReader\\MftReader.csproj",
               "RelativeDocumentMoniker": "MftReader\\MftReader.csproj",
@@ -177,22 +177,23 @@
               "RelativeDocumentMoniker": "MftReader\\Program.cs",
               "ToolTip": "C:\\Users\\Danie\\source\\repos\\ChemicalDaniel\\MFTSearch\\MftReader\\Program.cs",
               "RelativeToolTip": "MftReader\\Program.cs",
-              "ViewState": "AQIAANQAAAAAAAAAAAAAAOUAAAAPAAAA",
+              "ViewState": "AQIAAAgAAAAAAAAAAAAAwCQAAAANAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-06-03T03:28:58.136Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 1,
               "Title": "PInvokeWin32.cs",
               "DocumentMoniker": "C:\\Users\\Danie\\source\\repos\\ChemicalDaniel\\MFTSearch\\MftReader\\PInvokeWin32.cs",
               "RelativeDocumentMoniker": "MftReader\\PInvokeWin32.cs",
               "ToolTip": "C:\\Users\\Danie\\source\\repos\\ChemicalDaniel\\MFTSearch\\MftReader\\PInvokeWin32.cs",
               "RelativeToolTip": "MftReader\\PInvokeWin32.cs",
-              "ViewState": "AQIAAKAAAAAAAAAAAAAAwLEAAAARAAAA",
+              "ViewState": "AQIAAIMAAAAAAAAAAAAIwJUAAABOAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-03T03:28:57.576Z"
+              "WhenOpened": "2024-06-03T03:28:57.576Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",

@@ -33,8 +33,8 @@ namespace MftReader
         }
         static void Main(string[] args)
         {
-/*            try
-            {*/
+            try
+            {
                 Settings? settings = GetSettings();
 
                 Console.WriteLine("### "+Constants.APP_SIGNATURE+" ###");
@@ -222,14 +222,14 @@ namespace MftReader
                 Console.WriteLine("\n[PRESS ENTER]");
                 Console.ReadLine();
 
-/*            }
+        }
             catch (Exception e)
             {
                 Utils.Instance.ThrowErr(e.Message);
                 Utils.Instance.LogException(e);
-            }*/
+            }
 
-        }
+}
     }
         
 

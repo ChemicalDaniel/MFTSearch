@@ -150,7 +150,7 @@ namespace EnumerateVolume
                 this.FileAttributes = (UInt32)Marshal.ReadInt32(p, FA_OFFSET);
                 this.FileNameLength = Marshal.ReadInt16(p, FNL_OFFSET);
                 this.FileNameOffset = Marshal.ReadInt16(p, FN_OFFSET);
-                FileName = Marshal.PtrToStringUni(new IntPtr(p.ToInt32() + this.FileNameOffset), this.FileNameLength / sizeof(char));
+                FileName = Marshal.PtrToStringUni(new IntPtr(p.ToInt64() + this.FileNameOffset), this.FileNameLength / sizeof(char));
             }
         }
 
@@ -182,7 +182,7 @@ namespace EnumerateVolume
             }
             finally
             {
-                if (_changeJournalRootHandle.ToInt32() != PInvokeWin32.INVALID_HANDLE_VALUE)
+                if (_changeJournalRootHandle.ToInt64() != PInvokeWin32.INVALID_HANDLE_VALUE)
                 {
                     PInvokeWin32.CloseHandle(_changeJournalRootHandle);
                 }
@@ -205,7 +205,7 @@ namespace EnumerateVolume
                 PInvokeWin32.FILE_FLAG_BACKUP_SEMANTICS,
                 IntPtr.Zero);
 
-            if (hRoot.ToInt32() != PInvokeWin32.INVALID_HANDLE_VALUE)
+            if (hRoot.ToInt64() != PInvokeWin32.INVALID_HANDLE_VALUE)
             {
                 PInvokeWin32.BY_HANDLE_FILE_INFORMATION fi = new PInvokeWin32.BY_HANDLE_FILE_INFORMATION();
                 bool bRtn = PInvokeWin32.GetFileInformationByHandle(hRoot, out fi);
@@ -241,7 +241,7 @@ namespace EnumerateVolume
                  PInvokeWin32.OPEN_EXISTING,
                  0,
                  IntPtr.Zero);
-            if (_changeJournalRootHandle.ToInt32() == PInvokeWin32.INVALID_HANDLE_VALUE)
+            if (_changeJournalRootHandle.ToInt64() == PInvokeWin32.INVALID_HANDLE_VALUE)
             {
                 throw new IOException("CreateFile() returned invalid handle",
                     new Win32Exception(Marshal.GetLastWin32Error()));
@@ -258,7 +258,7 @@ namespace EnumerateVolume
                                     sizeof(PInvokeWin32.MFT_ENUM_DATA), pData, sizeof(UInt64) + 0x10000, out outBytesReturned,
                                     IntPtr.Zero))
             {
-                IntPtr pUsnRecord = new IntPtr(pData.ToInt32() + sizeof(Int64));
+                IntPtr pUsnRecord = new IntPtr(pData.ToInt64() + sizeof(Int64));
                 while (outBytesReturned > 60)
                 {
                     PInvokeWin32.USN_RECORD usn = new PInvokeWin32.USN_RECORD(pUsnRecord);
@@ -304,7 +304,7 @@ namespace EnumerateVolume
                         }
 
                     }
-                    pUsnRecord = new IntPtr(pUsnRecord.ToInt32() + usn.RecordLength);
+                    pUsnRecord = new IntPtr(pUsnRecord.ToInt64() + usn.RecordLength);
                     outBytesReturned -= usn.RecordLength;
                 }
                 Marshal.WriteInt64(medBuffer, Marshal.ReadInt64(pData, 0));
