@@ -128,13 +128,13 @@ namespace EnumerateVolume
 
         public class USN_RECORD
         {
-            public UInt32 RecordLength;
-            public UInt64 FileReferenceNumber;
-            public UInt64 ParentFileReferenceNumber;
-            public UInt32 FileAttributes;
-            public Int32 FileNameLength;
-            public Int32 FileNameOffset;
-            public string FileName = string.Empty;
+            public UInt32 RecordLength { get; }
+            public UInt64 FileReferenceNumber { get; }
+            public UInt64 ParentFileReferenceNumber { get; }
+            public UInt32 FileAttributes { get; }
+            public Int32 FileNameLength { get; }
+            public Int32 FileNameOffset { get; }
+            public string FileName { get; }
 
             private const int FR_OFFSET = 8;
             private const int PFR_OFFSET = 16;
@@ -150,9 +150,10 @@ namespace EnumerateVolume
                 this.FileAttributes = (UInt32)Marshal.ReadInt32(p, FA_OFFSET);
                 this.FileNameLength = Marshal.ReadInt16(p, FNL_OFFSET);
                 this.FileNameOffset = Marshal.ReadInt16(p, FN_OFFSET);
-                FileName = Marshal.PtrToStringUni(new IntPtr(p.ToInt64() + this.FileNameOffset), this.FileNameLength / sizeof(char));
+                this.FileName = Marshal.PtrToStringUni(new IntPtr(p.ToInt64() + this.FileNameOffset), this.FileNameLength / sizeof(char));
             }
         }
+
 
         #endregion
 
@@ -251,66 +252,61 @@ namespace EnumerateVolume
         unsafe public void EnumerateFiles(IntPtr medBuffer, ref Dictionary<ulong, FileNameAndParentFrn> files)
         {
             IntPtr pData = Marshal.AllocHGlobal(sizeof(UInt64) + 0x10000);
-            PInvokeWin32.RtlZeroMemory(pData, sizeof(UInt64) + 0x10000);
-            uint outBytesReturned = 0;
-
-            while (false != PInvokeWin32.DeviceIoControl(_changeJournalRootHandle, PInvokeWin32.FSCTL_ENUM_USN_DATA, medBuffer,
-                                    sizeof(PInvokeWin32.MFT_ENUM_DATA), pData, sizeof(UInt64) + 0x10000, out outBytesReturned,
-                                    IntPtr.Zero))
+            try
             {
-                IntPtr pUsnRecord = new IntPtr(pData.ToInt64() + sizeof(Int64));
-                while (outBytesReturned > 60)
+                PInvokeWin32.RtlZeroMemory(pData, sizeof(UInt64) + 0x10000);
+                uint outBytesReturned = 0;
+
+                while (false != PInvokeWin32.DeviceIoControl(_changeJournalRootHandle, PInvokeWin32.FSCTL_ENUM_USN_DATA, medBuffer,
+                                        sizeof(PInvokeWin32.MFT_ENUM_DATA), pData, sizeof(UInt64) + 0x10000, out outBytesReturned,
+                                        IntPtr.Zero))
                 {
-                    PInvokeWin32.USN_RECORD usn = new PInvokeWin32.USN_RECORD(pUsnRecord);
-                    if (0 != (usn.FileAttributes & PInvokeWin32.FILE_ATTRIBUTE_DIRECTORY))
+                    IntPtr pUsnRecord = new IntPtr(pData.ToInt64() + sizeof(Int64));
+                    while (outBytesReturned > 60)
                     {
-                        //  
-                        // handle directories  
-                        //  
-                        if (!files.ContainsKey(usn.FileReferenceNumber))
+                        PInvokeWin32.USN_RECORD usn = new PInvokeWin32.USN_RECORD(pUsnRecord);
+                        if (0 != (usn.FileAttributes & PInvokeWin32.FILE_ATTRIBUTE_DIRECTORY))
                         {
-                            files.Add(usn.FileReferenceNumber,
-                                new FileNameAndParentFrn(usn.FileName, usn.ParentFileReferenceNumber));
-                        }
-                        else
-                        {   // this is debug code and should be removed when we are certain that  
-                            // duplicate frn's don't exist on a given drive.  To date, this exception has  
-                            // never been thrown.  Removing this code improves performance....  
-                            throw new Exception(string.Format("Duplicate FRN: {0} for {1}",
-                                usn.FileReferenceNumber, usn.FileName));
-
-                        }
-
-                    }
-                    else
-                    {
-
-                        if (!files.ContainsKey(usn.FileReferenceNumber))
-                        {
-                            files.Add(usn.FileReferenceNumber,
-                                new FileNameAndParentFrn(usn.FileName, usn.ParentFileReferenceNumber));
-                        }
-                        else
-                        {
-                            FileNameAndParentFrn frn = files[usn.FileReferenceNumber];
-                            if (0 != string.Compare(usn.FileName, frn.Name, true))
+                            if (!files.ContainsKey(usn.FileReferenceNumber))
                             {
-                                //	Log.InfoFormat(
-                                //	"Attempt to add duplicate file reference number: {0} for file {1}, file from index {2}",
-                                //	usn.FileReferenceNumber, usn.FileName, frn.Name);
+                                files.Add(usn.FileReferenceNumber,
+                                    new FileNameAndParentFrn(usn.FileName, usn.ParentFileReferenceNumber));
+                            }
+                            else
+                            {
                                 throw new Exception(string.Format("Duplicate FRN: {0} for {1}",
                                     usn.FileReferenceNumber, usn.FileName));
                             }
                         }
-
+                        else
+                        {
+                            if (!files.ContainsKey(usn.FileReferenceNumber))
+                            {
+                                files.Add(usn.FileReferenceNumber,
+                                    new FileNameAndParentFrn(usn.FileName, usn.ParentFileReferenceNumber));
+                            }
+                            else
+                            {
+                                FileNameAndParentFrn frn = files[usn.FileReferenceNumber];
+                                if (0 != string.Compare(usn.FileName, frn.Name, true))
+                                {
+                                    throw new Exception(string.Format("Duplicate FRN: {0} for {1}",
+                                        usn.FileReferenceNumber, usn.FileName));
+                                }
+                            }
+                        }
+                        pUsnRecord = new IntPtr(pUsnRecord.ToInt64() + usn.RecordLength);
+                        outBytesReturned -= usn.RecordLength;
                     }
-                    pUsnRecord = new IntPtr(pUsnRecord.ToInt64() + usn.RecordLength);
-                    outBytesReturned -= usn.RecordLength;
+                    Marshal.WriteInt64(medBuffer, Marshal.ReadInt64(pData, 0));
                 }
-                Marshal.WriteInt64(medBuffer, Marshal.ReadInt64(pData, 0));
             }
-            Marshal.FreeHGlobal(pData);
+            finally
+            {
+                Marshal.FreeHGlobal(pData);
+            }
         }
+
 
         unsafe private void CreateChangeJournal()
         {

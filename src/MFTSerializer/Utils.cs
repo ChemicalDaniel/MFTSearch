@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Security.AccessControl;
@@ -95,6 +96,79 @@ namespace MFTSerializer
 
 
             return file;
+        }
+        
+        public string GetPath(ulong key, Dictionary<ulong, FileNameAndParentFrn> mDict)
+        {
+            if (!mDict.ContainsKey(key))
+            {
+                return null;
+            }
+
+            var pathStack = new Stack<string>();
+            var file = mDict[key];
+
+            while (file != null)
+            {
+                pathStack.Push(file.Name);
+                if (!mDict.ContainsKey(file.ParentFrn))
+                {
+                    break;
+                }
+                file = mDict[file.ParentFrn];
+            }
+            
+            return @"C:\" + string.Join(@"\", pathStack);
+        }
+        public Dictionary<String, FileDetails> ConvertFileNameAndParentFrnDictionaryToPathAndDetailsDictionary(Dictionary<ulong, FileNameAndParentFrn> mDict, List<FileNameAndParentFrn> fileNameAndParentFrns = null)
+        {
+            Dictionary<String, FileDetails> files = new Dictionary<string, FileDetails>();
+            if (fileNameAndParentFrns == null)
+            {
+               fileNameAndParentFrns = mDict.Values.ToList();
+            }
+            foreach (FileNameAndParentFrn file in fileNameAndParentFrns)
+            {
+                try
+                {
+                    string path = GetPath(file.ParentFrn, mDict) + @$"\{file.Name}";
+                    files.Add(path, new FileDetails(path));
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception);
+                }
+                
+            }
+
+            return files;
+        }
+        public string ConvertFileNameAndParentFrnDictionaryToJSON(Dictionary<ulong, FileNameAndParentFrn> mDict, List<FileNameAndParentFrn> fileNameAndParentFrns = null)
+        {
+            Dictionary<String, FileDetails> files = new Dictionary<string, FileDetails>();
+            if (fileNameAndParentFrns == null)
+            {
+                fileNameAndParentFrns = mDict.Values.ToList();
+            }
+
+            StringBuilder sb = new StringBuilder("{\n");
+            foreach (FileNameAndParentFrn file in fileNameAndParentFrns)
+            {
+                try
+                {
+                    string path = GetPath(file.ParentFrn, mDict) + @$"\{file.Name}";
+                    sb.Append("\t" + new FileDetails(path).ToString() + "\n");
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception);
+                }
+                
+            }
+
+            sb.Append("}");
+
+            return sb.ToString();
         }
 
         public void WriteToFile(String line, String fileNamePath)

@@ -101,7 +101,12 @@ namespace MFTSerializer
 
                 finalNameLst = new List<string>();
                 Console.WriteLine("MFT items: " + mDict.Count);
-                foreach (KeyValuePair<UInt64, FileNameAndParentFrn> entry in mDict)
+                List<FileNameAndParentFrn>
+                    find = mDict.Values.ToList().FindAll(x => x.Name.ToLower().Contains("Hello".ToLower()));
+                string dict = 
+                    Utils.Instance.ConvertFileNameAndParentFrnDictionaryToJSON(mDict, find);
+                Console.WriteLine(dict);
+                /*foreach (KeyValuePair<UInt64, FileNameAndParentFrn> entry in mDict)
                 {
                     FileNameAndParentFrn file = (FileNameAndParentFrn)entry.Value;
                     pathSb = new StringBuilder();
@@ -124,7 +129,7 @@ namespace MFTSerializer
 
                         finalNameLst.Add(pathSb.ToString());
 
-                        
+
 
                         Console.Write("File references found: " + finalNameLst.Count + "\r");
 
@@ -175,7 +180,7 @@ namespace MFTSerializer
 
 
                         try { owner = Utils.Instance.GetOwnerName(item); }
-                        catch (Exception e) 
+                        catch (Exception e)
                         {
                             ownerExceptionCount++;
                             Utils.Instance.LogException(e);
@@ -220,9 +225,9 @@ namespace MFTSerializer
                 Console.WriteLine("Process ended. Check the results in: " + jsonFileNamePath);
 
                 Console.WriteLine("\n[PRESS ENTER]");
-                Console.ReadLine();
+                Console.ReadLine();*/
 
-        }
+            }
             catch (Exception e)
             {
                 Utils.Instance.ThrowErr(e.Message);
