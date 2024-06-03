@@ -6,7 +6,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>scicrop-MFTSerializer-icon.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\MFTSerializer.ico</ApplicationIcon>
     <AssemblyTitle>MFTSerializer</AssemblyTitle>
     <Description>MFTSerializer is a Command-Line interface %28CLI%29 program which reads the Master File Table %28MFT%29 from NTFS volume. %28C# Implementation with PInvoke%29</Description>
     <Company>SciCrop</Company>
@@ -22,9 +22,6 @@
 		    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
 	    </Content>
     </ItemGroup>
-  <ItemGroup>
-    <Content Include="scicrop-MFTSerializer-icon.ico" />
-  </ItemGroup>
 	<ItemGroup>
 		<Content Include="appsettings.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
